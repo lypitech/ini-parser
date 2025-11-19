@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 project(iniparser
     VERSION 1.0.0
@@ -7,47 +7,79 @@ project(iniparser
     LANGUAGES CXX
 )
 
-# ============================================================
-#  Compiler settings
-# ============================================================
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clangd
 
-if (MSVC)
-    add_compile_options(/W4 /permissive-)
-else()
-    add_compile_options(-Wall -Wextra -Werror -pedantic)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# ============================================================
-#  Library target
-# ============================================================
-add_library(${PROJECT_NAME} STATIC
-    src/Parser.cpp
+# ==============================================================================
+#  Dependencies
+# ==============================================================================
+include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+
+# ==============================================================================
+#  Source files
+# ==============================================================================
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
+# ==============================================================================
+#  Include paths
+# ==============================================================================
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
 )
 
-# Public headers
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+# ==============================================================================
+#  Compiler flags
+# ==============================================================================
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -DDEBUG_MODE")
+
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall -Wextra
+        -Winit-self
+        -Wshadow -Wundef
+        -Wredundant-decls -Wunreachable-code
+        -Wwrite-strings
+        -pedantic
+        -Wstrict-overflow=2
+        --param max-inline-insns-single=200
+    )
+endif()
+
+# ==============================================================================
+#  Custom build targets
+# ==============================================================================
+add_custom_target(debug
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} --build .
+    COMMENT "Building in debug mode with DEBUG_MODE defined"
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+add_custom_target(re
+    COMMAND ${CMAKE_COMMAND} --build . --target clean
+    COMMAND ${CMAKE_COMMAND} --build . --target all
 )
 
-# ============================================================
+# ==============================================================================
+#  Installation
+# ==============================================================================
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+)
+
+# ==============================================================================
 #  Tests
-# ============================================================
+# ==============================================================================
 enable_testing()
 
-add_executable(test_iniparser tests/Tests.cpp)
-
-target_link_libraries(test_iniparser PRIVATE iniparser)
-
-target_include_directories(test_iniparser PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-add_test(NAME ParserTest COMMAND test_iniparser)
+add_subdirectory(tests)
