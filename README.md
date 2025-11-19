@@ -1,15 +1,18 @@
-# 📖 INI parser
+# 📖 YML parser
 
-This library is a C++ parser for `.INI` files.
+This library is a C++ parser for `.yml`/`.yaml` files.
 
 ## Getting started
+
+This project uses [`conan`](https://conan.io/) as its package manager.
+You can read how to setup `conan` [here](https://github.com/lypitech/rtype/blob/main/docs/setup_conan.md).
 
 ### 1. Build
 
 1. Clone the repository
 ```shell
-git clone git@github.com:lypitech/ini-parser.git
-cd ini-parser/
+git clone git@github.com:lypitech/yml-parser.git
+cd yml-parser/
 ```
 
 2. Build the project
@@ -43,7 +46,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    iniparser
+    ymlparser
 )
 ```
 
@@ -53,7 +56,7 @@ If you don't use a proper build system, you can still manually link the library 
 
 Simply include the following to your compilation flags:
 ```
--L <library file path> -l iniparser
+-L <library file path> -l ymlparser
 ```
 
 ## How it works
@@ -76,4 +79,4 @@ TODO
 
 ---
 
-###### You can reach me here: [esteban.bouyault-yvanez@epitech.eu](mailto:esteban.bouyault-yvanez@epitech.eu)
+###### You can reach me here: [lysandre.boursette@epitech.eu](mailto:lysandre.boursette@epitech.eu)
