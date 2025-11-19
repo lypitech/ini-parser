@@ -12,14 +12,15 @@ file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
 list(FILTER TEST_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
 
 if(TEST_SOURCES)
-    add_library(iniparser_lib ${TEST_SOURCES})
-    target_include_directories(iniparser_lib PUBLIC
+    add_library(ymlparser_lib ${TEST_SOURCES}
+            ../src/Yml.cpp)
+    target_include_directories(ymlparser_lib PUBLIC
         ${CMAKE_SOURCE_DIR}/include
     )
 endif()
 
 # ==============================================================================
-# Collect all test files
+#  Collect all test files
 # ==============================================================================
 file(GLOB_RECURSE TEST_FILES CONFIGURE_DEPENDS "*.cpp")
 
@@ -32,8 +33,8 @@ foreach(TEST_FILE ${TEST_FILES})
         GTest::gtest_main
     )
 
-    if(TARGET iniparser_lib)
-        target_link_libraries(${TEST_NAME} iniparser_lib)
+    if(TARGET ymlparser_lib)
+        target_link_libraries(${TEST_NAME} ymlparser_lib)
     endif()
 
     gtest_discover_tests(${TEST_NAME})

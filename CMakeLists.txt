@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(iniparser
+project(ymlparser
     VERSION 1.0.0
-    DESCRIPTION "INI file parser"
-    HOMEPAGE_URL "https://github.com/lypitech/ini-parser"
+    DESCRIPTION "YML file parser"
+    HOMEPAGE_URL "https://github.com/lypitech/yml-parser"
     LANGUAGES CXX
 )
 
